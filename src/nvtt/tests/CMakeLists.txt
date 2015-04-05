@@ -1,9 +1,9 @@
 
 ADD_EXECUTABLE(filtertest filtertest.cpp ../tools/cmdline.h)
-TARGET_LINK_LIBRARIES(filtertest nvcore nvmath nvimage nvtt)
+TARGET_LINK_LIBRARIES(filtertest bc6h bc7 nvcore nvmath nvimage nvtt)
 
 ADD_EXECUTABLE(nvtestsuite testsuite.cpp)
-TARGET_LINK_LIBRARIES(nvtestsuite nvcore nvmath nvimage nvtt)
+TARGET_LINK_LIBRARIES(nvtestsuite bc6h bc7 nvcore nvmath nvimage nvtt)
 ADD_TEST(NVTT.TestSuite.Kodak.cuda nvtestsuite -path ${NV_SOURCE_DIR}/data/testsuite -set 0 -out output-cuda-kodak)
 ADD_TEST(NVTT.TestSuite.Waterloo.cuda nvtestsuite -path ${NV_SOURCE_DIR}/data/testsuite -set 1 -out output-cuda-waterloo)
 ADD_TEST(NVTT.TestSuite.Epic.cuda nvtestsuite -path ${NV_SOURCE_DIR}/data/testsuite -set 2 -out output-cuda-epic)
@@ -13,20 +13,20 @@ ADD_TEST(NVTT.TestSuite.Epic.nocuda nvtestsuite -path ${NV_SOURCE_DIR}/data/test
 
 IF (CUDA_FOUND)
     ADD_EXECUTABLE(driverapitest driverapi.cpp)
-    TARGET_LINK_LIBRARIES(driverapitest nvcore nvmath nvimage nvtt)
+    TARGET_LINK_LIBRARIES(driverapitest bc6h bc7 nvcore nvmath nvimage nvtt)
 ENDIF (CUDA_FOUND)
 
 ADD_EXECUTABLE(imperativeapi imperativeapi.cpp)
-TARGET_LINK_LIBRARIES(imperativeapi nvcore nvmath nvimage nvtt)
+TARGET_LINK_LIBRARIES(imperativeapi bc6h bc7 nvcore nvmath nvimage nvtt)
 
 ADD_EXECUTABLE(process_alpha_map process_alpha_map.cpp)
-TARGET_LINK_LIBRARIES(process_alpha_map nvcore nvmath nvimage nvtt)
+TARGET_LINK_LIBRARIES(process_alpha_map bc6h bc7 nvcore nvmath nvimage nvtt)
 
 ADD_EXECUTABLE(cubemaptest cubemaptest.cpp)
-TARGET_LINK_LIBRARIES(cubemaptest nvcore nvmath nvimage nvtt)
+TARGET_LINK_LIBRARIES(cubemaptest bc6h bc7 nvcore nvmath nvimage nvtt)
 
 ADD_EXECUTABLE(nvhdrtest hdrtest.cpp)
-TARGET_LINK_LIBRARIES(nvhdrtest nvcore nvmath nvimage nvtt)
+TARGET_LINK_LIBRARIES(nvhdrtest bc6h bc7 nvcore nvmath nvimage nvtt)
 
 INSTALL(TARGETS nvtestsuite nvhdrtest DESTINATION bin)
  
