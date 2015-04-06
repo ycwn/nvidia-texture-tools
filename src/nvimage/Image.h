@@ -33,6 +33,7 @@ namespace nv
         bool load(const char * name);
 
         void resize(uint w, uint h, uint d = 1);
+        void flip();
 
         void wrap(void * data, uint w, uint h, uint d = 1);
         void unwrap();

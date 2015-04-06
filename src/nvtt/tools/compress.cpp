@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
     bool premultiplyAlpha = false;
     nvtt::MipmapFilter mipmapFilter = nvtt::MipmapFilter_Box;
     bool loadAsFloat = false;
+    bool flip = true;
 
     const char * externalCompressor = NULL;
 
@@ -208,6 +209,10 @@ int main(int argc, char *argv[])
         else if (strcmp("-float", argv[i]) == 0)
         {
             loadAsFloat = true;
+        }
+        else if (strcmp("-flip", argv[i]) == 0)
+        {
+            flip = true;
         }
 
         // Compression options.
@@ -341,7 +346,8 @@ int main(int argc, char *argv[])
         printf("  -nomips    \tDisable mipmap generation.\n");
         printf("  -premula   \tPremultiply alpha into color channel.\n");
         printf("  -mipfilter \tMipmap filter. One of the following: box, triangle, kaiser.\n");
-        printf("  -float     \tLoad as floating point image.\n\n");
+        printf("  -float     \tLoad as floating point image.\n");
+        printf("  -flip      \tFlip image before compression.\n\n");
 
         printf("Compression options:\n");
         printf("  -fast    \tFast compression.\n");
@@ -443,6 +449,9 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
 
+            if (flip)
+                image->flipY();
+
             inputOptions.setFormat(nvtt::InputFormat_RGBA_32F);
             inputOptions.setTextureLayout(nvtt::TextureType_2D, image->width(), image->height());
 
@@ -460,6 +469,9 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "The file '%s' is not a supported image type.\n", input.str());
                 return 1;
             }
+
+            if (flip)
+                image.flip();
 
             inputOptions.setTextureLayout(nvtt::TextureType_2D, image.width(), image.height());
             inputOptions.setMipmapData(image.pixels(), image.width(), image.height());

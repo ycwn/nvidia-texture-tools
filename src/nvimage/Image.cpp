@@ -88,6 +88,22 @@ void Image::resize(uint w, uint h, uint d/*= 1*/) {
     swap(m_data, img.m_data);
 }
 
+void Image::flip()
+{
+
+    for (int z=0; z < m_depth; z++)
+        for (int y=0; y < m_height / 2; y++)
+            for (int x=0; x < m_width; x++) {
+
+                Color32 C = pixel(x, y, z);
+
+                pixel(x, y, z)            = pixel(x, m_height - y - 1, z);
+                pixel(x, m_height - y - 1, z) = C;
+
+            }
+
+}
+
 bool Image::load(const char * name)
 {
     free();
