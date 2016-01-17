@@ -325,6 +325,7 @@ namespace nv
         void setTexture2D();
         void setTexture3D();
         void setTextureCube();
+        void setArrayCount(uint count);
         void setLinearSize(uint size);
         void setPitch(uint pitch);
         void setFourCC(uint8 c0, uint8 c1, uint8 c2, uint8 c3);
@@ -373,6 +374,7 @@ namespace nv
         bool hasAlpha() const;
 
         uint mipmapCount() const;
+        uint arrayCount() const;
         uint width() const;
         uint height() const;
         uint depth() const;
@@ -380,6 +382,7 @@ namespace nv
         bool isTexture2D() const;
         bool isTexture3D() const;
         bool isTextureCube() const;
+        bool isTextureArray() const;
 
         void setNormalFlag(bool b);
         void setHasAlphaFlag(bool b);

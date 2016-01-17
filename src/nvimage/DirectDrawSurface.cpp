@@ -514,7 +514,7 @@ DDSHeader::DDSHeader()
     this->header10.dxgiFormat = DXGI_FORMAT_UNKNOWN;
     this->header10.resourceDimension = DDS_DIMENSION_UNKNOWN;
     this->header10.miscFlag = 0;
-    this->header10.arraySize = 0;
+    this->header10.arraySize = 1;
     this->header10.reserved = 0;
 }
 
@@ -563,7 +563,6 @@ void DDSHeader::setTexture2D()
 {
     this->header10.resourceDimension = DDS_DIMENSION_TEXTURE2D;
     this->header10.miscFlag = 0;
-    this->header10.arraySize = 1;
 }
 
 void DDSHeader::setTexture3D()
@@ -572,7 +571,6 @@ void DDSHeader::setTexture3D()
 
     this->header10.resourceDimension = DDS_DIMENSION_TEXTURE3D;
     this->header10.miscFlag = 0;
-    this->header10.arraySize = 1;
 }
 
 void DDSHeader::setTextureCube()
@@ -582,7 +580,15 @@ void DDSHeader::setTextureCube()
 
     this->header10.resourceDimension = DDS_DIMENSION_TEXTURE2D;
     this->header10.miscFlag = DDS_MISC_TEXTURECUBE;
+}
+
+void DDSHeader::setArrayCount(uint count)
+{
+	if (count < 1)
     this->header10.arraySize = 1;
+
+	else
+		this->header10.arraySize = count;
 }
 
 void DDSHeader::setLinearSize(uint size)
@@ -1065,6 +1071,16 @@ uint DirectDrawSurface::depth() const
     else return 1;
 }
 
+uint DirectDrawSurface::arrayCount() const
+{
+    nvDebugCheck(isValid());
+    if (header.hasDX10Header())
+    {
+        return header.header10.arraySize;
+    }
+    return 1;
+}
+
 bool DirectDrawSurface::isTexture1D() const
 {
     nvDebugCheck(isValid());
@@ -1105,6 +1121,11 @@ bool DirectDrawSurface::isTextureCube() const
 {
     nvDebugCheck(isValid());
     return (header.caps.caps2 & DDSCAPS2_CUBEMAP) != 0;
+}
+
+bool DirectDrawSurface::isTextureArray() const
+{
+	return arrayCount() > 1;
 }
 
 void DirectDrawSurface::setNormalFlag(bool b)
