@@ -1,5 +1,5 @@
 // Copyright NVIDIA Corporation 2007 -- Ignacio Castano <icastano@nvidia.com>
-// 
+//
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
 // files (the "Software"), to deal in the Software without
@@ -8,10 +8,10 @@
 // copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following
 // conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -182,7 +182,7 @@ namespace
             CASE(B8G8R8A8_UNORM);
             CASE(B8G8R8X8_UNORM);
 
-        default: 
+        default:
             return "UNKNOWN";
         }
 #undef CASE
@@ -253,7 +253,7 @@ namespace
             case DXGI_FORMAT_R16G16B16A16_UINT:
             case DXGI_FORMAT_R16G16B16A16_SNORM:
             case DXGI_FORMAT_R16G16B16A16_SINT:
-            
+
             case DXGI_FORMAT_R32G32_TYPELESS:
             case DXGI_FORMAT_R32G32_FLOAT:
             case DXGI_FORMAT_R32G32_UINT:
@@ -333,7 +333,7 @@ namespace
             case DXGI_FORMAT_B5G6R5_UNORM:
             case DXGI_FORMAT_B5G5R5A1_UNORM:
                 return 8*2;
-            
+
             case DXGI_FORMAT_B8G8R8A8_UNORM:
             case DXGI_FORMAT_B8G8R8X8_UNORM:
                 return 8*4;
@@ -344,7 +344,7 @@ namespace
             case DXGI_FORMAT_B8G8R8X8_TYPELESS:
             case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
                 return 8*4;
-                
+
             default:
                 return 0;
         }
@@ -454,7 +454,7 @@ namespace
         { D3DFMT_A2R10G10B10,    32, 0x3FF00000, 0xFFC00,    0x3FF,      0xC0000000 },
         { D3DFMT_A2B10G10R10,    32, 0x3FF,      0xFFC00,    0x3FF00000, 0xC0000000 },
 
-        { D3DFMT_L8,             8,  0xFF,       0,          0,          0 },           // DXGI_FORMAT_R8_UNORM 
+        { D3DFMT_L8,             8,  0xFF,       0,          0,          0 },           // DXGI_FORMAT_R8_UNORM
         { D3DFMT_L16,            16, 0xFFFF,     0,          0,          0 },           // DXGI_FORMAT_R16_UNORM
         { D3DFMT_A8L8,           16, 0xFF,       0,          0,     0xFF00 },           // DXGI_FORMAT_R8G8_UNORM?
     };
@@ -585,7 +585,7 @@ void DDSHeader::setTextureCube()
 void DDSHeader::setArrayCount(uint count)
 {
 	if (count < 1)
-    this->header10.arraySize = 1;
+		this->header10.arraySize = 1;
 
 	else
 		this->header10.arraySize = count;
@@ -809,6 +809,80 @@ uint DDSHeader::d3d9Format() const
     }
 }
 
+uint DDSHeader::dx10Format() const
+{
+    if (hasDX10Header())
+        return header10.dxgiFormat;
+
+	if (pf.flags & DDPF_RGB) {
+
+		if (pf.bitcount == 32)
+			return
+				((pf.rmask==0x000000ff) && (pf.gmask==0x0000ff00) && (pf.bmask==0x00ff0000) && (pf.amask==0xff000000))? DXGI_FORMAT_R8G8B8A8_UNORM:
+				((pf.rmask==0x00ff0000) && (pf.gmask==0x0000ff00) && (pf.bmask==0x000000ff) && (pf.amask==0xff000000))? DXGI_FORMAT_B8G8R8A8_UNORM:
+				((pf.rmask==0x00ff0000) && (pf.gmask==0x0000ff00) && (pf.bmask==0x000000ff) && (pf.amask==0x00000000))? DXGI_FORMAT_B8G8R8X8_UNORM:
+				((pf.rmask==0x3ff00000) && (pf.gmask==0x000ffc00) && (pf.bmask==0x000003ff) && (pf.amask==0xc0000000))? DXGI_FORMAT_R10G10B10A2_UNORM:
+				((pf.rmask==0x0000ffff) && (pf.gmask==0xffff0000) && (pf.bmask==0x00000000) && (pf.amask==0x00000000))? DXGI_FORMAT_R16G16_UNORM:
+				((pf.rmask==0xffffffff) && (pf.gmask==0x00000000) && (pf.bmask==0x00000000) && (pf.amask==0x00000000))? DXGI_FORMAT_R32_FLOAT:
+				DXGI_FORMAT_UNKNOWN;
+
+		if (pf.bitcount == 16)
+			return
+				((pf.rmask==0x7c00) && (pf.gmask==0x03e0) && (pf.bmask==0x001f) && (pf.amask==0x8000))? DXGI_FORMAT_B5G5R5A1_UNORM:
+				((pf.rmask==0xf800) && (pf.gmask==0x07e0) && (pf.bmask==0x001f) && (pf.amask==0x0000))? DXGI_FORMAT_B5G6R5_UNORM:
+				DXGI_FORMAT_UNKNOWN;
+
+		return DXGI_FORMAT_UNKNOWN;
+
+	}
+
+	if (pf.flags & DDPF_LUMINANCE) {
+
+		if (pf.bitcount == 16)
+			return
+				((pf.rmask==0xffff) && (pf.gmask==0x0000) && (pf.bmask==0x0000) && (pf.amask==0x0000))? DXGI_FORMAT_R16_UNORM:
+				((pf.rmask==0x00ff) && (pf.gmask==0x0000) && (pf.bmask==0x0000) && (pf.amask==0xff00))? DXGI_FORMAT_R8G8_UNORM:
+				DXGI_FORMAT_UNKNOWN;
+
+		if (pf.bitcount == 8)
+			return
+				((pf.rmask==0xff) && (pf.gmask==0x00) && (pf.bmask==0x00) && (pf.amask==0x00))? DXGI_FORMAT_R8_UNORM:
+				DXGI_FORMAT_UNKNOWN;
+
+		return DXGI_FORMAT_UNKNOWN;
+
+	}
+
+	if (pf.flags & DDPF_ALPHA) {
+
+		if (pf.bitcount == 16)
+			return DXGI_FORMAT_A8_UNORM;
+
+		return DXGI_FORMAT_UNKNOWN;
+
+	}
+
+	if (pf.flags & DDPF_FOURCC)
+		return
+			(pf.fourcc == FOURCC_DXT1)?          DXGI_FORMAT_BC1_UNORM:
+			(pf.fourcc == FOURCC_DXT2)?          DXGI_FORMAT_BC2_UNORM:
+			(pf.fourcc == FOURCC_DXT3)?          DXGI_FORMAT_BC2_UNORM:
+			(pf.fourcc == FOURCC_DXT4)?          DXGI_FORMAT_BC3_UNORM:
+			(pf.fourcc == FOURCC_DXT5)?          DXGI_FORMAT_BC3_UNORM:
+			(pf.fourcc == FOURCC_ATI1)?          DXGI_FORMAT_BC4_UNORM:
+			(pf.fourcc == FOURCC_ATI2)?          DXGI_FORMAT_BC5_UNORM:
+			(pf.fourcc == D3DFMT_A16B16G16R16)?  DXGI_FORMAT_R16G16B16A16_UNORM:
+			(pf.fourcc == D3DFMT_R16F)?          DXGI_FORMAT_R16_FLOAT:
+			(pf.fourcc == D3DFMT_G16R16F)?       DXGI_FORMAT_R16G16_FLOAT:
+			(pf.fourcc == D3DFMT_A16B16G16R16F)? DXGI_FORMAT_R16G16B16A16_FLOAT:
+			(pf.fourcc == D3DFMT_R32F)?          DXGI_FORMAT_R32_FLOAT:
+			(pf.fourcc == D3DFMT_G32R32F)?       DXGI_FORMAT_R32G32_FLOAT:
+			(pf.fourcc == D3DFMT_A32B32G32R32F)? DXGI_FORMAT_R32G32B32A32_FLOAT:
+			DXGI_FORMAT_UNKNOWN;
+
+	return DXGI_FORMAT_UNKNOWN;
+}
+
 uint DDSHeader::pixelSize() const
 {
     if (hasDX10Header()) {
@@ -827,7 +901,7 @@ uint DDSHeader::pixelSize() const
 
 uint DDSHeader::blockSize() const
 {
-    switch(pf.fourcc) 
+    switch(pf.fourcc)
     {
     case FOURCC_DXT1:
     case FOURCC_ATI1:
@@ -1011,14 +1085,14 @@ bool DirectDrawSurface::hasAlpha() const
     if (header.hasDX10Header())
     {
 #pragma NV_MESSAGE("TODO: Update hasAlpha to handle all DX10 formats.")
-        return 
+        return
             header.header10.dxgiFormat == DXGI_FORMAT_BC1_UNORM ||
             header.header10.dxgiFormat == DXGI_FORMAT_BC2_UNORM ||
             header.header10.dxgiFormat == DXGI_FORMAT_BC3_UNORM;
     }
     else
     {
-        if (header.pf.flags & DDPF_RGB) 
+        if (header.pf.flags & DDPF_RGB)
         {
             return header.pf.amask != 0;
         }
@@ -1182,7 +1256,7 @@ void DirectDrawSurface::mipmap(Image * img, uint face, uint mipmap)
     }
     else
     {
-        if (header.pf.flags & DDPF_RGB) 
+        if (header.pf.flags & DDPF_RGB)
         {
             readLinearImage(img);
         }
@@ -1208,7 +1282,7 @@ void DirectDrawSurface::mipmap(Image * img, uint face, uint mipmap)
     *sizePtr = size;
 
     void * data = new unsigned char [size];
-    
+
     size = stream->serialize(data, size);
     nvDebugCheck(size == *sizePtr);
 
@@ -1225,7 +1299,7 @@ void DirectDrawSurface::mipmap(Image * img, uint face, uint mipmap)
         h = (h + 1) / 2;
         d = (d + 1) / 2;
     }
-    
+
     bool isBlockFormat;
     uint blockOrPixelSize;
 
@@ -1237,7 +1311,7 @@ void DirectDrawSurface::mipmap(Image * img, uint face, uint mipmap)
         }
     }
     else {
-        header.pf.flags 
+        header.pf.flags
     }
 
     if (isBlockFormat) {
@@ -1580,19 +1654,19 @@ void DirectDrawSurface::printInfo() const
     if (header.pf.flags & DDPF_ALPHAPREMULT) printf("\t\tDDPF_ALPHAPREMULT\n");
     if (header.pf.flags & DDPF_NORMAL) printf("\t\tDDPF_NORMAL\n");
 
-    if (header.pf.fourcc != 0) { 
+    if (header.pf.fourcc != 0) {
         // Display fourcc code even when DDPF_FOURCC flag not set.
         printf("\tFourCC: '%c%c%c%c' (0x%.8X)\n",
             ((header.pf.fourcc >> 0) & 0xFF),
             ((header.pf.fourcc >> 8) & 0xFF),
             ((header.pf.fourcc >> 16) & 0xFF),
-            ((header.pf.fourcc >> 24) & 0xFF), 
+            ((header.pf.fourcc >> 24) & 0xFF),
             header.pf.fourcc);
     }
 
     if ((header.pf.flags & DDPF_FOURCC) && (header.pf.bitcount != 0))
     {
-        printf("\tSwizzle: '%c%c%c%c' (0x%.8X)\n", 
+        printf("\tSwizzle: '%c%c%c%c' (0x%.8X)\n",
             (header.pf.bitcount >> 0) & 0xFF,
             (header.pf.bitcount >> 8) & 0xFF,
             (header.pf.bitcount >> 16) & 0xFF,
